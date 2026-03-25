@@ -1,13 +1,15 @@
 import time
 import random
+import matplotlib.pyplot as plt
 
-# -------------------------------
+# =====================================================
+# TASK 1: DIVIDE & CONQUER ALGORITHMS
+# =====================================================
+
 # 1. Binary Search (Recursive)
-# -------------------------------
 def binary_search(arr, low, high, x):
     if high >= low:
         mid = (low + high) // 2
-
         if arr[mid] == x:
             return mid
         elif arr[mid] > x:
@@ -17,12 +19,10 @@ def binary_search(arr, low, high, x):
     return -1
 
 
-# -------------------------------
 # 2. Merge Sort
-# -------------------------------
 def merge_sort(arr):
     if len(arr) > 1:
-        mid = len(arr) // 2
+        mid = len(arr)//2
         L = arr[:mid]
         R = arr[mid:]
 
@@ -30,7 +30,6 @@ def merge_sort(arr):
         merge_sort(R)
 
         i = j = k = 0
-
         while i < len(L) and j < len(R):
             if L[i] < R[j]:
                 arr[k] = L[i]
@@ -51,14 +50,12 @@ def merge_sort(arr):
             k += 1
 
 
-# -------------------------------
 # 3. Quick Sort
-# -------------------------------
 def quick_sort(arr):
     if len(arr) <= 1:
         return arr
 
-    pivot = arr[len(arr) // 2]
+    pivot = arr[len(arr)//2]
 
     left = [x for x in arr if x < pivot]
     middle = [x for x in arr if x == pivot]
@@ -67,9 +64,7 @@ def quick_sort(arr):
     return quick_sort(left) + middle + quick_sort(right)
 
 
-# -------------------------------
 # 4. Max and Min (Divide & Conquer)
-# -------------------------------
 def max_min(arr, low, high):
     if low == high:
         return arr[low], arr[low]
@@ -84,9 +79,7 @@ def max_min(arr, low, high):
     return max(max1, max2), min(min1, min2)
 
 
-# -------------------------------
 # 5. Strassen’s Matrix Multiplication
-# -------------------------------
 def add(A, B):
     return [[A[i][j] + B[i][j] for j in range(len(A))] for i in range(len(A))]
 
@@ -133,46 +126,104 @@ def strassen(A, B):
     return new_matrix
 
 
-# -------------------------------
-# TESTING & TIMING
-# -------------------------------
+# =====================================================
+# TASK 2: SORTING PERFORMANCE COMPARISON
+# =====================================================
+
+def generate_best_case(n):
+    return list(range(n))
+
+def generate_worst_case(n):
+    return list(range(n, 0, -1))
+
+def generate_average_case(n):
+    return random.sample(range(n*10), n)
+
+
+def measure_time(sort_func, arr):
+    start = time.time()
+    if sort_func == quick_sort:
+        sort_func(arr)
+    else:
+        sort_func(arr)
+    return time.time() - start
+
+
+def compare_sorting():
+    sizes = [100, 500, 1000, 2000]
+
+    merge_best, merge_avg, merge_worst = [], [], []
+    quick_best, quick_avg, quick_worst = [], [], []
+
+    for size in sizes:
+        # BEST CASE
+        arr = generate_best_case(size)
+        merge_best.append(measure_time(merge_sort, arr.copy()))
+        quick_best.append(measure_time(quick_sort, arr.copy()))
+
+        # AVERAGE CASE
+        arr = generate_average_case(size)
+        merge_avg.append(measure_time(merge_sort, arr.copy()))
+        quick_avg.append(measure_time(quick_sort, arr.copy()))
+
+        # WORST CASE
+        arr = generate_worst_case(size)
+        merge_worst.append(measure_time(merge_sort, arr.copy()))
+        quick_worst.append(measure_time(quick_sort, arr.copy()))
+
+    # Plot graph
+    plt.figure()
+
+    plt.plot(sizes, merge_best, label="Merge Best")
+    plt.plot(sizes, merge_avg, label="Merge Avg")
+    plt.plot(sizes, merge_worst, label="Merge Worst")
+
+    plt.plot(sizes, quick_best, label="Quick Best")
+    plt.plot(sizes, quick_avg, label="Quick Avg")
+    plt.plot(sizes, quick_worst, label="Quick Worst")
+
+    plt.xlabel("Input Size")
+    plt.ylabel("Execution Time")
+    plt.title("Merge vs Quick Sort")
+    plt.legend()
+
+    plt.savefig("plots/sorting_comparison.png")
+    plt.show()
+
+
+# =====================================================
+# MAIN FUNCTION (RUN ALL)
+# =====================================================
+
 if __name__ == "__main__":
+
+    print("----- TASK 1 OUTPUT -----")
 
     arr = random.sample(range(1000), 100)
 
     # Binary Search
     sorted_arr = sorted(arr)
     x = sorted_arr[50]
-    start = time.time()
-    index = binary_search(sorted_arr, 0, len(sorted_arr)-1, x)
-    print("Binary Search Index:", index)
-    print("Time:", time.time() - start)
+    print("Binary Search Index:", binary_search(sorted_arr, 0, len(sorted_arr)-1, x))
 
     # Merge Sort
     temp = arr.copy()
-    start = time.time()
     merge_sort(temp)
-    print("\nMerge Sort Time:", time.time() - start)
+    print("Merge Sort Done")
 
     # Quick Sort
     temp = arr.copy()
-    start = time.time()
-    quick_sorted = quick_sort(temp)
-    print("Quick Sort Time:", time.time() - start)
+    quick_sort(temp)
+    print("Quick Sort Done")
 
     # Max Min
-    start = time.time()
     mx, mn = max_min(arr, 0, len(arr)-1)
-    print("\nMax:", mx, "Min:", mn)
-    print("Time:", time.time() - start)
+    print("Max:", mx, "Min:", mn)
 
-    # Strassen Matrix
+    # Strassen
     A = [[1, 2], [3, 4]]
     B = [[5, 6], [7, 8]]
+    print("Strassen Result:", strassen(A, B))
 
-    start = time.time()
-    result = strassen(A, B)
-    print("\nStrassen Result:")
-    for row in result:
-        print(row)
-    print("Time:", time.time() - start)
+    print("\n----- TASK 2 GRAPH -----")
+    compare_sorting()
